@@ -1,5 +1,5 @@
 import React from "react";
-import { emptyCityStreetSuggestion, Form, type CityStreetSuggestion } from "@/components/features/form";
+import { emptyCityStreetSuggestion, type CityStreetSuggestion } from "@/components/features/form";
 import { Container, LazySection } from "@/components";
 import { LazyInteractiveMap } from "@/components/features/lazy-components";
 import { SECTION_IDS } from "@/data";
@@ -14,6 +14,8 @@ export const HomePage: React.FC = () => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
     const handleStreetSelect = (codigo: string) => {
+        console.log("Calle con nombre");
+        
         setFormData(prev => ({
             ...prev,
             streetCode: codigo
@@ -51,13 +53,8 @@ export const HomePage: React.FC = () => {
                     </LazySection>
                 </div>
             </Container>
-
-
-            <div className="justify-center">
-                <Button onClick={handleModal}>Abri modal</Button>
-            </div>
+            
             <FormDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
-
             <Footer />
         </>
     );

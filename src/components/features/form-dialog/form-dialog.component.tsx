@@ -6,11 +6,13 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
+    DialogOverlay,
+    DialogPortal,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import type React from "react"
 import { useState } from "react"
 
@@ -22,7 +24,6 @@ interface Props {
 export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
     const [observaciones, setObservaciones] = useState("")
     const [notificado, setNotificado] = useState(false)
-    const [isSliding, setIsSliding] = useState(false)
 
     // Datos de ejemplo del terreno (aquí conectarías con tus datos reales)
     const terreno = {
@@ -36,14 +37,6 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
         loteAgr: "8"
     }
 
-    const handleSlideNotification = () => {
-        setIsSliding(true)
-        setTimeout(() => {
-            setNotificado(true)
-            setIsSliding(false)
-        }, 300)
-    }
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         // Aquí procesas el formulario
@@ -53,7 +46,10 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto z-[999]">
+            <DialogPortal>
+                <DialogOverlay className="z-[1000]" />
+            </DialogPortal>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto z-[1001]">
                 <DialogHeader>
                     <DialogTitle>Notificación de Terreno</DialogTitle>
                     <DialogDescription>
@@ -68,8 +64,21 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                             <h3 className="font-semibold text-sm border-b pb-2">
                                 Información del Terreno
                             </h3>
-                            
+
                             <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">
+                                        FID
+                                    </Label>
+                                    <p className="font-medium">{terreno.fid}</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">
+                                        Object ID
+                                    </Label>
+                                    <p className="font-medium">{terreno.objectId}</p>
+                                </div>
 
                                 <div className="space-y-1">
                                     <Label className="text-xs text-muted-foreground">
@@ -132,44 +141,24 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                             />
                         </div>
 
-                        {/* Botón de Notificación Deslizante */}
-                        <div className="space-y-2">
-                            <Label>Estado de Notificación</Label>
-                            <div
-                                className={`relative h-12 rounded-full border-2 overflow-hidden cursor-pointer transition-colors ${
-                                    notificado 
-                                        ? 'bg-green-500 border-green-600' 
-                                        : 'bg-gray-200 border-gray-300'
-                                }`}
-                                onClick={!notificado ? handleSlideNotification : undefined}
-                            >
-                                <div
-                                    className={`absolute inset-y-0 left-0 flex items-center justify-center transition-all duration-300 ${
-                                        notificado ? 'w-full' : 'w-1/2'
-                                    }`}
-                                >
-                                    <span className={`text-sm font-semibold ${
-                                        notificado ? 'text-white' : 'text-gray-600'
+                        {/* Switch de Notificación */}
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">¿Notificado?</Label>
+                            <div className="flex items-center gap-3">
+                                <span className={`text-sm font-medium transition-colors ${!notificado ? 'text-red-500' : 'text-gray-400'
                                     }`}>
-                                        {notificado ? '✓ Propietario Notificado' : 'Deslizar para Notificar'}
-                                    </span>
-                                </div>
-                                
-                                {!notificado && (
-                                    <div
-                                        className={`absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] bg-white rounded-full shadow-lg flex items-center justify-center transition-transform duration-300 ${
-                                            isSliding ? 'translate-x-full' : 'translate-x-0'
-                                        }`}
-                                    >
-                                        <span className="text-xl">→</span>
-                                    </div>
-                                )}
+                                    NO
+                                </span>
+                                <Switch
+                                    checked={notificado}
+                                    onCheckedChange={setNotificado}
+                                    className="data-[state=checked]:bg-green-500"
+                                />
+                                <span className={`text-sm font-medium transition-colors ${notificado ? 'text-green-500' : 'text-gray-400'
+                                    }`}>
+                                    SI
+                                </span>
                             </div>
-                            {notificado && (
-                                <p className="text-xs text-green-600 text-center">
-                                    Notificación registrada correctamente
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -179,7 +168,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                 Cancelar
                             </Button>
                         </DialogClose>
-                        <Button 
+                        <Button
                             type="submit"
                             disabled={!notificado || !observaciones.trim()}
                         >

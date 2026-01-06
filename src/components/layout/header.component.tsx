@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
                     <img
                         src={rutaPng}
                         alt="Logo"
-                        className="w-15 h-15 md:w-20 md:h-20 min-w-fit"
+                        className="size-15 min-w-fit p-2"
                     />
 
                     <span className="manrope text-2xl font-semibold text-foreground cursor-pointer">

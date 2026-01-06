@@ -5,9 +5,10 @@ import { streetColors, getStreetWidth } from "@/styles";
 import type { GeoJsonData, GeoJsonFeature } from "./types";
 import { popupContent } from "./popup-content.component";
 import { useZoomBasedWeight, type ZoomWeightConfig } from "../hook";
+import type { Parc } from "./parc.interface";
 
 interface Props {
-  data: GeoJsonData;
+  data: Parc;
   onStreetSelect: (codigo: string) => void;
   selectedStreetCode?: string;
   foundStreetCode?: string;

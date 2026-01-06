@@ -1,13 +1,13 @@
 import React from 'react';
 import { streetColors } from '@/styles';
-import type { GeoJsonData } from './types';
+import type { Parc } from './parc.interface';
 
 interface Props {
-    roadsData: GeoJsonData;
+    parcData: Parc;
     onStreetFound: (codigo: string, nombre: string) => void;
 }
 
-export const StreetSearcher: React.FC<Props> = ({ roadsData, onStreetFound }) => {
+export const StreetSearcher: React.FC<Props> = ({ parcData, onStreetFound }) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -21,7 +21,7 @@ export const StreetSearcher: React.FC<Props> = ({ roadsData, onStreetFound }) =>
     const streetsWithNames = React.useMemo(() => {
         const uniqueStreets = new Map();
 
-        roadsData.features.forEach(feature => {
+        parcData.features.forEach(feature => {
             if (feature.properties.NOMBRE && feature.properties.NOMBRE.trim()) {
                 const name = feature.properties.NOMBRE.trim().toUpperCase();
                 const code = feature.properties.CODIGO_CAL;
@@ -39,7 +39,7 @@ export const StreetSearcher: React.FC<Props> = ({ roadsData, onStreetFound }) =>
         return Array.from(uniqueStreets.values()).sort((a, b) =>
             a.nombre.localeCompare(b.nombre)
         );
-    }, [roadsData]);
+    }, [parcData]);
 
     // Filtrar calles basado en la búsqueda
     const filteredStreets = React.useMemo(() => {

@@ -8,9 +8,10 @@ import {
   LocationMarker,
   StreetGeoJsonLayer,
   CenterOnLocationButton,
+  type Parc,
 } from "./components";
 import classes from "./interactive-map.component.module.css";
-import { getRoads } from "./api";
+import { getRoads, getParc } from "./api";
 import { Fallback } from "@/components/ui/fallback.component";
 
 interface Props {
@@ -26,12 +27,12 @@ export const InteractiveMap: React.FC<Props> = ({
   foundStreetCode,
   setFoundStreetCode,
 }) => {
-  const [roads, setRoads] = React.useState<GeoJsonData | null>(null);
+  const [roads, setRoads] = React.useState<Parc | null>(null);
 
   React.useEffect(() => {
     const loadRoads = async () => {
       try {
-        const data = await getRoads();
+        const data = await getParc();
         setRoads(data);
       } catch (error) {
         console.error("Error loading roads.");
@@ -49,7 +50,7 @@ export const InteractiveMap: React.FC<Props> = ({
     <>
       {roads ? (
         <>
-          <StreetSearcher roadsData={roads} onStreetFound={handleStreetFound} />
+          {/*<StreetSearcher parcData={roads} onStreetFound={handleStreetFound} />*/}
           <Legends />
           <MapContainer
             center={[-25.5095, -54.6158]}
