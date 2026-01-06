@@ -58,12 +58,22 @@ export const InteractiveMap: React.FC = () => {
     });
   };
 
-  const style = {
-    fillColor: '#3388ff',
-    weight: 2,
-    opacity: 1,
-    color: '#3388ff',
-    fillOpacity: 0.2,
+  // Función de estilo dinámica basada en las propiedades de cada feature
+  const getFeatureStyle = (feature?: Feature) => {
+    // Obtener el valor de S25_INM_SUP_TE
+    const supTe = feature?.properties?.S25_INM_SUP_TE;
+    
+    // Determinar el color: rojo si es 0, null o undefined, verde en caso contrario
+    const fillColor = (!supTe || supTe === 0) ? '#ef4444' : '#22c55e'; // red-500 : green-500
+    const borderColor = (!supTe || supTe === 0) ? '#dc2626' : '#16a34a'; // red-600 : green-600
+
+    return {
+      fillColor: fillColor,
+      weight: 2,
+      opacity: 1,
+      color: borderColor,
+      fillOpacity: 0.2,
+    };
   };
 
   return (
@@ -84,7 +94,7 @@ export const InteractiveMap: React.FC = () => {
 
             <GeoJSON
               data={lands}
-              style={style}
+              style={getFeatureStyle}
               onEachFeature={onEachFeature}
             />
 
