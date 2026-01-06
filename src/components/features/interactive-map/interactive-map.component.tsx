@@ -15,16 +15,21 @@ import classes from "./interactive-map.component.module.css";
 import { getParc } from "./api";
 import { Fallback } from "@/components/ui/fallback.component";
 import { useTerrainContext } from "@/contexts";
+import type { Const } from "./components/const.interface";
+import { getConsts } from "./api/get-const.api";
 
 export const InteractiveMap: React.FC = () => {
   const [lands, setLands] = React.useState<Parc | null>(null);
+  const [consts, setConsts] = React.useState<Const | null>(null);
   const { openDialog } = useTerrainContext();
 
   React.useEffect(() => {
     const loadLands = async () => {
       try {
-        const data = await getParc();
-        setLands(data);
+        const dataParc = await getParc();
+        const dataConst = await getConsts();
+        setLands(dataParc);
+        setConsts(dataConst);
       } catch (error) {
         console.error("Error loading lands.");
       }
@@ -62,7 +67,7 @@ export const InteractiveMap: React.FC = () => {
   const getFeatureStyle = (feature?: Feature) => {
     // Obtener el valor de S25_INM_SUP_TE
     const supTe = feature?.properties?.S25_INM_SUP_TE;
-    
+
     // Determinar el color: rojo si es 0, null o undefined, verde en caso contrario
     const fillColor = (!supTe || supTe === 0) ? '#ef4444' : '#22c55e'; // red-500 : green-500
     const borderColor = (!supTe || supTe === 0) ? '#dc2626' : '#16a34a'; // red-600 : green-600
@@ -76,16 +81,24 @@ export const InteractiveMap: React.FC = () => {
     };
   };
 
+  const constStyles = {
+    fillColor: '#3b82f6', // blue-500
+    weight: 2,
+    opacity: 1,
+    color: '#2563eb', // blue-600
+    fillOpacity: 0.3, // Un poco más de opacidad para que se vean bien
+  };
+
   return (
     <>
-      {lands ? (
+      {lands && consts ? (
         <>
           <Legends />
           <MapContainer
             center={[-25.5095, -54.6158]}
             zoom={13}
             scrollWheelZoom={true}
-            className={`${classes.mapContainer} h-[500px]`}
+            className={`${classes.mapContainer} h-[600px]`}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -96,6 +109,11 @@ export const InteractiveMap: React.FC = () => {
               data={lands}
               style={getFeatureStyle}
               onEachFeature={onEachFeature}
+            />
+
+            <GeoJSON
+              data={consts}
+              style={constStyles}
             />
 
             <LocationMarker />
