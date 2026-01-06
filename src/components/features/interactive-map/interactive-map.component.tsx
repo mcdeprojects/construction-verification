@@ -1,56 +1,75 @@
 import React from "react";
+import { GeoJSON } from 'react-leaflet';
+import type { Layer } from 'leaflet';
+import type { Feature } from 'geojson'; // Importa el tipo correcto de geojson
 import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
 import {
-  StreetSearcher,
-  type GeoJsonData,
   Legends,
   LocationMarker,
-  StreetGeoJsonLayer,
   CenterOnLocationButton,
   type Parc,
+  type ParcFeature,
 } from "./components";
 import classes from "./interactive-map.component.module.css";
-import { getRoads, getParc } from "./api";
+import { getParc } from "./api";
 import { Fallback } from "@/components/ui/fallback.component";
+import { useTerrainContext } from "@/contexts";
 
-interface Props {
-  onStreetSelect: (codigo: string) => void;
-  selectedStreetCode?: string;
-  foundStreetCode?: string;
-  setFoundStreetCode: React.Dispatch<React.SetStateAction<string | undefined>>;
-}
-
-export const InteractiveMap: React.FC<Props> = ({
-  onStreetSelect,
-  selectedStreetCode,
-  foundStreetCode,
-  setFoundStreetCode,
-}) => {
-  const [roads, setRoads] = React.useState<Parc | null>(null);
+export const InteractiveMap: React.FC = () => {
+  const [lands, setLands] = React.useState<Parc | null>(null);
+  const { openDialog } = useTerrainContext();
 
   React.useEffect(() => {
-    const loadRoads = async () => {
+    const loadLands = async () => {
       try {
         const data = await getParc();
-        setRoads(data);
+        setLands(data);
       } catch (error) {
-        console.error("Error loading roads.");
+        console.error("Error loading lands.");
       }
     };
 
-    loadRoads();
+    loadLands();
   }, []);
 
-  const handleStreetFound = (codigo: string, _nombre: string) => {
-    setFoundStreetCode(codigo);
+  const onEachFeature = (feature: Feature, layer: Layer) => {
+    layer.on({
+      click: () => {
+        console.log('Datos del terreno seleccionado:', feature.properties);
+        console.log('Geometría:', feature.geometry);
+        // Abrir el modal con la feature seleccionada
+        openDialog(feature as ParcFeature);
+      },
+      mouseover: (e) => {
+        const target = e.target;
+        target.setStyle({
+          fillOpacity: 0.7,
+          weight: 3,
+        });
+      },
+      mouseout: (e) => {
+        const target = e.target;
+        target.setStyle({
+          fillOpacity: 0.2,
+          weight: 2,
+        });
+      },
+    });
+  };
+
+  const style = {
+    fillColor: '#3388ff',
+    weight: 2,
+    opacity: 1,
+    color: '#3388ff',
+    fillOpacity: 0.2,
   };
 
   return (
     <>
-      {roads ? (
+      {lands ? (
         <>
-          {/*<StreetSearcher parcData={roads} onStreetFound={handleStreetFound} />*/}
           <Legends />
           <MapContainer
             center={[-25.5095, -54.6158]}
@@ -62,24 +81,15 @@ export const InteractiveMap: React.FC<Props> = ({
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            
+
+            <GeoJSON
+              data={lands}
+              style={style}
+              onEachFeature={onEachFeature}
+            />
+
             <LocationMarker />
             <CenterOnLocationButton />
-            
-            <StreetGeoJsonLayer
-              data={roads}
-              onStreetSelect={onStreetSelect}
-              selectedStreetCode={selectedStreetCode}
-              foundStreetCode={foundStreetCode}
-              zoomWeightConfig={{
-                minWeight: 0.5, // Zoom alejado: líneas muy finas
-                maxWeight: 7, // Zoom cercano: líneas gruesas
-                minZoom: 11, // Desde zoom 11
-                maxZoom: 18, // Hasta zoom 18
-                scale: "linear", // Crecimiento exponencial (más natural)
-                exponent: 1.8, // Controla la curva de crecimiento
-              }}
-            />
           </MapContainer>
         </>
       ) : (

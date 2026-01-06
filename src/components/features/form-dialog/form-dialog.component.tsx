@@ -14,7 +14,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useTerrainContext } from "@/contexts/terrain-context"
 
 interface Props {
     open: boolean,
@@ -22,32 +23,56 @@ interface Props {
 }
 
 export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
+    const { selectedFeature } = useTerrainContext();
     const [observaciones, setObservaciones] = useState("")
     const [notificado, setNotificado] = useState(false)
 
-    // Datos de ejemplo del terreno (aquí conectarías con tus datos reales)
-    const terreno = {
-        fid: "86608",
-        objectId: "86373",
-        padron: "0",
-        zona: "26",
-        lote: "8",
-        nombreObj: "Derivado",
-        ccatastral: "K042632008",
-        loteAgr: "8"
-    }
+    // Reset form cuando se cierra el modal
+    useEffect(() => {
+        if (!open) {
+            setObservaciones("");
+            setNotificado(false);
+        }
+    }, [open]);
+
+    // Datos del terreno seleccionado
+    const terreno = selectedFeature?.properties ? {
+        fid: String(selectedFeature.properties.fid || ""),
+        objectId: String(selectedFeature.properties.objectid || ""),
+        padron: String(selectedFeature.properties.padron || "0"),
+        zona: String(selectedFeature.properties.zona || ""),
+        mz: String(selectedFeature.properties.mz || ""),
+        lote: String(selectedFeature.properties.lote || ""),
+        nombreObj: selectedFeature.properties.nombre_obj || "Sin información",
+        ccatastral: selectedFeature.properties.ccatastral || "",
+        loteAgr: selectedFeature.properties.lote_agr || "",
+        mzAgr: selectedFeature.properties.mz_agr || "",
+    } : null;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        // Aquí procesas el formulario
-        console.log({ observaciones, notificado })
-        onOpenChange(false)
+        if (!terreno) return;
+
+        const formData = {
+            terreno,
+            observaciones,
+            notificado,
+            fecha: new Date().toISOString()
+        };
+
+        console.log('Formulario enviado:', formData);
+        // Aquí harías tu llamada a API
+        onOpenChange(false);
+    }
+
+    if (!terreno) {
+        return null;
     }
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogPortal>
-                <DialogOverlay className="z-[1000]" />
+                <DialogOverlay className="z-[1001]" />
             </DialogPortal>
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto z-[1001]">
                 <DialogHeader>
@@ -96,17 +121,35 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
 
                                 <div className="space-y-1">
                                     <Label className="text-xs text-muted-foreground">
+                                        Manzana
+                                    </Label>
+                                    <p className="font-medium">{terreno.mz}</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-xs text-muted-foreground">
                                         Lote
                                     </Label>
                                     <p className="font-medium">{terreno.lote}</p>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        Lote Agrupado
-                                    </Label>
-                                    <p className="font-medium">{terreno.loteAgr}</p>
-                                </div>
+                                {terreno.mzAgr && (
+                                    <div className="space-y-1">
+                                        <Label className="text-xs text-muted-foreground">
+                                            Manzana Agrupada
+                                        </Label>
+                                        <p className="font-medium">{terreno.mzAgr}</p>
+                                    </div>
+                                )}
+
+                                {terreno.loteAgr && (
+                                    <div className="space-y-1">
+                                        <Label className="text-xs text-muted-foreground">
+                                            Lote Agrupado
+                                        </Label>
+                                        <p className="font-medium">{terreno.loteAgr}</p>
+                                    </div>
+                                )}
 
                                 <div className="col-span-2 space-y-1">
                                     <Label className="text-xs text-muted-foreground">

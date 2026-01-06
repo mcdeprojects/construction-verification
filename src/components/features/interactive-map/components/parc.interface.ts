@@ -1,24 +1,5 @@
-export interface Parc {
-  type: string
-  name: string
-  crs: Crs
-  features: Feature[]
-}
 
-export interface Crs {
-  type: string
-  properties: Properties
-}
-
-export interface Properties {
-  name: string
-}
-
-export interface Feature {
-  type: string
-  properties: FeatureProperties
-  geometry: Geometry
-}
+import type { FeatureCollection, Feature, Polygon, MultiPolygon } from 'geojson';
 
 export interface FeatureProperties {
   fid: number
@@ -62,7 +43,6 @@ export interface FeatureProperties {
   S25_INM_SUP_TE?: number
 }
 
-export interface Geometry {
-  type: string
-  coordinates: number[][][][]
-}
+export type ParcFeature = Feature<Polygon | MultiPolygon, FeatureProperties>;
+
+export type Parc = FeatureCollection<Polygon | MultiPolygon, FeatureProperties>;
