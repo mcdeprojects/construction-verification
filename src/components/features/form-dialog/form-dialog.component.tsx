@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch"
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useTerrainContext } from "@/contexts/terrain-context"
+import { saveNotification } from "../interactive-map/services/notification-service"
 
 interface Props {
     open: boolean,
@@ -23,19 +24,23 @@ interface Props {
 }
 
 export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
-    const { selectedFeature } = useTerrainContext();
+    const { selectedFeature, notifiedSet, setNotifiedSet, loadNotifications } = useTerrainContext();
     const [observaciones, setObservaciones] = useState("")
     const [notificado, setNotificado] = useState(false)
 
-    // Reset form cuando se cierra el modal
     useEffect(() => {
-        if (!open) {
+        if (open && selectedFeature?.properties?.ccatastral) {
+            const isNotified = notifiedSet.has(selectedFeature.properties.ccatastral);
+            setNotificado(isNotified);
+        } else {
+            // Reset cuando cierra
             setObservaciones("");
             setNotificado(false);
-        }
-    }, [open]);
+            console.log("set", notifiedSet);
 
-    // Datos del terreno seleccionado
+        }
+    }, [open, selectedFeature, notifiedSet]);
+
     const terreno = selectedFeature?.properties ? {
         fid: String(selectedFeature.properties.fid || ""),
         objectId: String(selectedFeature.properties.objectid || ""),
@@ -52,16 +57,8 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!terreno) return;
-
-        const formData = {
-            terreno,
-            observaciones,
-            notificado,
-            fecha: new Date().toISOString()
-        };
-
-        console.log(formData);
-        // Aquí harías tu llamada a API
+        saveNotification(terreno.ccatastral, observaciones);
+        setNotifiedSet(new Set([...notifiedSet, terreno.ccatastral]));
         onOpenChange(false);
     }
 

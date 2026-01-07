@@ -17,13 +17,12 @@ import { Fallback } from "@/components/ui/fallback.component";
 import { useTerrainContext } from "@/contexts";
 import type { Const } from "./components/const.interface";
 import { getConsts } from "./api/get-const.api";
-import { getNotifiedSet } from "./services/notification-service";
 
 export const InteractiveMap: React.FC = () => {
   const [lands, setLands] = React.useState<Parc | null>(null);
   const [consts, setConsts] = React.useState<Const | null>(null);
-  const [notifiedSet, setNotifiedSet] = React.useState<Set<string>>(new Set());
-  const { openDialog } = useTerrainContext();
+
+  const { openDialog, notifiedSet } = useTerrainContext();
 
   React.useEffect(() => {
     loadLands();
@@ -37,10 +36,6 @@ export const InteractiveMap: React.FC = () => {
 
       const dataConst = await getConsts();
       setConsts(dataConst);
-
-      const notified = await getNotifiedSet();
-      setNotifiedSet(notified);
-
     } catch (error) {
       console.error("Error loading data.");
     }
@@ -49,9 +44,6 @@ export const InteractiveMap: React.FC = () => {
   const onEachFeature = (feature: Feature, layer: Layer) => {
     layer.on({
       click: () => {
-        console.log('Datos del terreno seleccionado:', feature.properties);
-        console.log('Geometría:', feature.geometry);
-        // Abrir el modal con la feature seleccionada
         openDialog(feature as ParcFeature);
       },
       mouseover: (e) => {
@@ -71,22 +63,22 @@ export const InteractiveMap: React.FC = () => {
     });
   };
 
+
   const getFeatureStyle = (feature?: Feature) => {
-    const ccatastral = feature?.properties?.ccatastral;
     const supTe = feature?.properties?.S25_INM_SUP_TE;
+    const ccatastral = feature?.properties?.ccatastral;
 
     const hasConstruction = supTe && supTe >= 1;
-    const isNotified = notifiedSet.has(ccatastral);
+    const isNotified = notifiedSet.has(ccatastral);  
 
-    // ROJO: tiene construcción Y NO notificado
-    // VERDE: cualquier otro caso
-    const needsNotification = hasConstruction && !isNotified;
+    const fillColor = !(hasConstruction && !isNotified) ? '#ef4444' : '#22c55e'; // red-500 : green-500
+    const borderColor = !(hasConstruction && !isNotified) ? '#dc2626' : '#16a34a'; // red-600 : green-600
 
     return {
-      fillColor: needsNotification ? '#ef4444' : '#22c55e',
-      color: needsNotification ? '#dc2626' : '#16a34a',
+      fillColor: fillColor,
       weight: 2,
       opacity: 1,
+      color: borderColor,
       fillOpacity: 0.2,
     };
   };

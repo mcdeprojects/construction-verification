@@ -34,8 +34,6 @@ export const getParc = async (): Promise<Parc> => {
       }
     }
 
-    console.log(`✅ Loaded ${allData.length} parcels from Supabase`);
-
     // Mapear a GeoJSON
     const features = allData.map(row => ({
       type: 'Feature',

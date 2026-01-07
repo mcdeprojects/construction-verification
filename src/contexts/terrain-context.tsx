@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
 import type { ParcFeature } from '@/components/features/interactive-map/components';
+import { getNotifiedSet } from '@/components/features/interactive-map/services/notification-service';
 
 interface TerrainContextType {
   selectedFeature: ParcFeature | null;
   isDialogOpen: boolean;
   openDialog: (feature: ParcFeature) => void;
   closeDialog: () => void;
+  notifiedSet: Set<string>;
+  setNotifiedSet: React.Dispatch<React.SetStateAction<Set<string>>>;
+  loadNotifications: () => void
 }
 
 const TerrainContext = createContext<TerrainContextType | undefined>(undefined);
@@ -25,6 +29,15 @@ interface TerrainProviderProps {
 export const TerrainProvider: React.FC<TerrainProviderProps> = ({ children }) => {
   const [selectedFeature, setSelectedFeature] = useState<ParcFeature | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [notifiedSet, setNotifiedSet] = React.useState<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    loadNotifications();
+  }, [])
+
+  const loadNotifications = () => {
+    getNotifiedSet().then(setNotifiedSet)
+  };
 
   const openDialog = (feature: ParcFeature) => {
     setSelectedFeature(feature);
@@ -43,6 +56,9 @@ export const TerrainProvider: React.FC<TerrainProviderProps> = ({ children }) =>
         isDialogOpen,
         openDialog,
         closeDialog,
+        notifiedSet,
+        setNotifiedSet,
+        loadNotifications,
       }}
     >
       {children}
