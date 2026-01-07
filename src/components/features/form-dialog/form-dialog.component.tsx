@@ -60,7 +60,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
             fecha: new Date().toISOString()
         };
 
-        console.log('Formulario enviado:', formData);
+        console.log(formData);
         // Aquí harías tu llamada a API
         onOpenChange(false);
     }
@@ -213,7 +213,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                         </DialogClose>
                         <Button
                             type="submit"
-                            disabled={!notificado || !observaciones.trim()}
+                            disabled={!notificado}
                         >
                             Guardar Notificación
                         </Button>

@@ -17,26 +17,34 @@ import { Fallback } from "@/components/ui/fallback.component";
 import { useTerrainContext } from "@/contexts";
 import type { Const } from "./components/const.interface";
 import { getConsts } from "./api/get-const.api";
+import { getNotifiedSet } from "./services/notification-service";
 
 export const InteractiveMap: React.FC = () => {
   const [lands, setLands] = React.useState<Parc | null>(null);
   const [consts, setConsts] = React.useState<Const | null>(null);
+  const [notifiedSet, setNotifiedSet] = React.useState<Set<string>>(new Set());
   const { openDialog } = useTerrainContext();
 
   React.useEffect(() => {
-    const loadLands = async () => {
-      try {
-        const dataParc = await getParc();
-        const dataConst = await getConsts();
-        setLands(dataParc);
-        setConsts(dataConst);
-      } catch (error) {
-        console.error("Error loading lands.");
-      }
-    };
-
     loadLands();
   }, []);
+
+
+  const loadLands = async () => {
+    try {
+      const parc = await getParc();
+      setLands(parc);
+
+      const dataConst = await getConsts();
+      setConsts(dataConst);
+
+      const notified = await getNotifiedSet();
+      setNotifiedSet(notified);
+
+    } catch (error) {
+      console.error("Error loading data.");
+    }
+  };
 
   const onEachFeature = (feature: Feature, layer: Layer) => {
     layer.on({
@@ -63,20 +71,22 @@ export const InteractiveMap: React.FC = () => {
     });
   };
 
-  // Función de estilo dinámica basada en las propiedades de cada feature
   const getFeatureStyle = (feature?: Feature) => {
-    // Obtener el valor de S25_INM_SUP_TE
+    const ccatastral = feature?.properties?.ccatastral;
     const supTe = feature?.properties?.S25_INM_SUP_TE;
 
-    // Determinar el color: rojo si es 0, null o undefined, verde en caso contrario
-    const fillColor = (!supTe || supTe === 0) ? '#ef4444' : '#22c55e'; // red-500 : green-500
-    const borderColor = (!supTe || supTe === 0) ? '#dc2626' : '#16a34a'; // red-600 : green-600
+    const hasConstruction = supTe && supTe >= 1;
+    const isNotified = notifiedSet.has(ccatastral);
+
+    // ROJO: tiene construcción Y NO notificado
+    // VERDE: cualquier otro caso
+    const needsNotification = hasConstruction && !isNotified;
 
     return {
-      fillColor: fillColor,
+      fillColor: needsNotification ? '#ef4444' : '#22c55e',
+      color: needsNotification ? '#dc2626' : '#16a34a',
       weight: 2,
       opacity: 1,
-      color: borderColor,
       fillOpacity: 0.2,
     };
   };
@@ -106,6 +116,7 @@ export const InteractiveMap: React.FC = () => {
             />
 
             <GeoJSON
+              key={notifiedSet.size}
               data={lands}
               style={getFeatureStyle}
               onEachFeature={onEachFeature}
