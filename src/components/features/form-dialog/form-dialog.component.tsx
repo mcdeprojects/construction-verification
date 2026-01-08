@@ -3,7 +3,6 @@ import {
     Dialog,
     DialogClose,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogOverlay,
@@ -17,6 +16,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useTerrainContext } from "@/contexts/terrain-context"
 import { saveNotification } from "../interactive-map/services/notification-service"
+import { Check, Copy } from "lucide-react"
 
 interface Props {
     open: boolean,
@@ -27,6 +27,8 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
     const { selectedFeature, notifiedSet, setNotifiedSet } = useTerrainContext();
     const [observaciones, setObservaciones] = useState("")
     const [notificado, setNotificado] = useState(false)
+    const [copied, setCopied] = useState(false);
+
 
     useEffect(() => {
         if (open && selectedFeature?.properties?.ccatastral) {
@@ -36,6 +38,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
             // Reset cuando cierra
             setObservaciones("");
             setNotificado(false);
+            setCopied(false);
         }
     }, [open, selectedFeature, notifiedSet]);
 
@@ -61,6 +64,18 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
         onOpenChange(false);
     }
 
+
+    const handleCopy = async () => {
+        if (!terreno?.ccatastral) return;
+
+        try {
+            await navigator.clipboard.writeText(terreno.ccatastral);
+            setCopied(true);
+        } catch (err) {
+            console.error("Error al copiar:", err);
+        }
+    };
+
     if (!terreno) {
         return null;
     }
@@ -73,9 +88,6 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto z-[1001]">
                 <DialogHeader>
                     <DialogTitle>Notificación de Terreno</DialogTitle>
-                    <DialogDescription>
-                        Complete la información y notifique al propietario
-                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit}>
@@ -86,15 +98,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                 Información del Terreno
                             </h3>
 
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        FID
-                                    </Label>
-                                    <p className="font-medium">{terreno.fid}</p>
-                                </div>
-
-
+                            <div className="grid grid-cols-3 gap-3 text-sm">
 
                                 <div className="space-y-1">
                                     <Label className="text-xs text-muted-foreground">
@@ -120,7 +124,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                 {terreno.mzAgr && (
                                     <div className="space-y-1">
                                         <Label className="text-xs text-muted-foreground">
-                                            Manzana Agrupada
+                                            Manzana Agrimensor
                                         </Label>
                                         <p className="font-medium">{terreno.mzAgr}</p>
                                     </div>
@@ -129,28 +133,44 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                 {terreno.loteAgr && (
                                     <div className="space-y-1">
                                         <Label className="text-xs text-muted-foreground">
-                                            Lote Agrupado
+                                            Lote Agrimensor
                                         </Label>
                                         <p className="font-medium">{terreno.loteAgr}</p>
                                     </div>
                                 )}
+                            </div>
+                            <div className="col-span-2 space-y-1">
+                                <Label className="text-xs text-muted-foreground">
+                                    Propietario
+                                </Label>
+                                <p className="font-medium">{terreno.propietario || "Sin información"}</p>
+                            </div>
 
-                                <div className="col-span-2 space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        Propietario
-                                    </Label>
-                                    <p className="font-medium">{terreno.propietario || "Sin información"}</p>
-                                </div>
+                            <div className="col-span-2 space-y-1">
+                                <Label className="text-xs text-muted-foreground">
+                                    Cuenta Catastral
+                                </Label>
+                                <div className="font-medium bg-muted px-2 py-1 rounded flex justify-between items-center">
 
-                                <div className="col-span-2 space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        Cuenta Catastral
-                                    </Label>
-                                    <p className="font-medium font-mono text-xs bg-muted px-2 py-1 rounded">
+                                    <p >
                                         {terreno.ccatastral}
+
                                     </p>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={handleCopy}
+                                    >
+                                        {copied ? (
+                                            <Check className="h-4 w-4 mr-2" />
+                                        ) : (
+                                            <Copy className="h-4 w-4 mr-2" />
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Observaciones */}

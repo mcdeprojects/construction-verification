@@ -33,8 +33,6 @@ export const getParc = async (): Promise<Parc> => {
         hasMore = false;
       }
     }
-
-    console.log({allData});
     
     // Mapear a GeoJSON
     const features = allData.map(row => ({
