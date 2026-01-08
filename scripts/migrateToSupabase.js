@@ -36,7 +36,7 @@ async function migrateData() {
 
   try {
     // Load GeoJSON data
-    const geoJsonPath = join(__dirname, '../src/data/map/z1_parc_short.json');
+    const geoJsonPath = join(__dirname, '../src/data/map/z1_parc_full.json');
     const geoJsonData = JSON.parse(readFileSync(geoJsonPath, 'utf-8'));
     
     console.log(`📊 Found ${geoJsonData.features.length} parcels to migrate\n`);
