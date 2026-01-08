@@ -41,6 +41,7 @@ export interface FeatureProperties {
   AC_VERIFICADO?: string
   AC_FECHA: any
   S25_INM_SUP_TE?: number
+  PROPIETARIO?: string
 }
 
 export type ParcFeature = Feature<Polygon | MultiPolygon, FeatureProperties>;

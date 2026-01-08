@@ -24,7 +24,7 @@ interface Props {
 }
 
 export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
-    const { selectedFeature, notifiedSet, setNotifiedSet, loadNotifications } = useTerrainContext();
+    const { selectedFeature, notifiedSet, setNotifiedSet } = useTerrainContext();
     const [observaciones, setObservaciones] = useState("")
     const [notificado, setNotificado] = useState(false)
 
@@ -36,22 +36,21 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
             // Reset cuando cierra
             setObservaciones("");
             setNotificado(false);
-            console.log("set", notifiedSet);
-
         }
     }, [open, selectedFeature, notifiedSet]);
 
     const terreno = selectedFeature?.properties ? {
-        fid: String(selectedFeature.properties.fid || ""),
-        objectId: String(selectedFeature.properties.objectid || ""),
-        padron: String(selectedFeature.properties.padron || "0"),
-        zona: String(selectedFeature.properties.zona || ""),
-        mz: String(selectedFeature.properties.mz || ""),
-        lote: String(selectedFeature.properties.lote || ""),
-        nombreObj: selectedFeature.properties.nombre_obj || "Sin información",
-        ccatastral: selectedFeature.properties.ccatastral || "",
-        loteAgr: selectedFeature.properties.lote_agr || "",
-        mzAgr: selectedFeature.properties.mz_agr || "",
+        fid: String(selectedFeature.properties.fid ?? ""),
+        objectId: String(selectedFeature.properties.objectid ?? ""),
+        padron: String(selectedFeature.properties.padron ?? "0"),
+        zona: String(selectedFeature.properties.zona ?? ""),
+        mz: String(selectedFeature.properties.mz ?? ""),
+        lote: String(selectedFeature.properties.lote ?? ""),
+        nombreObj: selectedFeature.properties.nombre_obj ?? "Sin información",
+        ccatastral: selectedFeature.properties.ccatastral ?? "",
+        loteAgr: selectedFeature.properties.lote_agr ?? "",
+        mzAgr: selectedFeature.properties.mz_agr ?? "",
+        propietario: selectedFeature.properties.PROPIETARIO ?? "",
     } : null;
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -95,19 +94,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                     <p className="font-medium">{terreno.fid}</p>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        Object ID
-                                    </Label>
-                                    <p className="font-medium">{terreno.objectId}</p>
-                                </div>
 
-                                <div className="space-y-1">
-                                    <Label className="text-xs text-muted-foreground">
-                                        Padrón
-                                    </Label>
-                                    <p className="font-medium">{terreno.padron}</p>
-                                </div>
 
                                 <div className="space-y-1">
                                     <Label className="text-xs text-muted-foreground">
@@ -152,7 +139,7 @@ export const FormDialog: React.FC<Props> = ({ open, onOpenChange }) => {
                                     <Label className="text-xs text-muted-foreground">
                                         Propietario
                                     </Label>
-                                    <p className="font-medium">{terreno.nombreObj}</p>
+                                    <p className="font-medium">{terreno.propietario || "Sin información"}</p>
                                 </div>
 
                                 <div className="col-span-2 space-y-1">

@@ -65,14 +65,11 @@ export const InteractiveMap: React.FC = () => {
 
 
   const getFeatureStyle = (feature?: Feature) => {
-    const supTe = feature?.properties?.S25_INM_SUP_TE;
     const ccatastral = feature?.properties?.ccatastral;
+    const isNotified = notifiedSet.has(ccatastral);
 
-    const hasConstruction = supTe && supTe >= 1;
-    const isNotified = notifiedSet.has(ccatastral);  
-
-    const fillColor = !(hasConstruction && !isNotified) ? '#ef4444' : '#22c55e'; // red-500 : green-500
-    const borderColor = !(hasConstruction && !isNotified) ? '#dc2626' : '#16a34a'; // red-600 : green-600
+    const fillColor = (!isNotified) ? '#ef4444' : '#22c55e'; // red-500 : green-500
+    const borderColor = (!isNotified) ? '#dc2626' : '#16a34a'; // red-600 : green-600
 
     return {
       fillColor: fillColor,
@@ -124,7 +121,7 @@ export const InteractiveMap: React.FC = () => {
           </MapContainer>
         </>
       ) : (
-        <Fallback className="h-[500px]" text="Cargando mapa interactivo..." />
+        <Fallback className="h-[500px]" text="Cargando mapa..." />
       )}
     </>
   );

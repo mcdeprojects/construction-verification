@@ -13,14 +13,14 @@ export const Legends: React.FC = () => {
                         className="w-4 h-1"
                         style={{ backgroundColor: legendsColors.unnotified }}
                     ></div>
-                    <span>Sin notificar o con construcción</span>
+                    <span>Sin notificar</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <div
                         className="w-4 h-1"
                         style={{ backgroundColor: legendsColors.notified}}
                     ></div>
-                    <span>Notificado o sin construcción</span>
+                    <span>Notificado</span>
                 </div>
                 
    

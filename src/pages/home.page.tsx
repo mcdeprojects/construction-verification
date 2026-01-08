@@ -18,7 +18,7 @@ const HomePageContent: React.FC = () => {
                     fallback={
                         <Fallback
                             className="pt-24 min-h-screen"
-                            text="Cargando mapa interactivo..."
+                            text="Cargando mapa..."
                         />
                     }
                 >

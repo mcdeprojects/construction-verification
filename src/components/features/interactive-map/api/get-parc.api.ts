@@ -34,11 +34,13 @@ export const getParc = async (): Promise<Parc> => {
       }
     }
 
+    console.log({allData});
+    
     // Mapear a GeoJSON
     const features = allData.map(row => ({
       type: 'Feature',
       properties: {
-        fid: row.id,
+        fid: row.fid,
         objectid: row.objectid,
         dpto: row.dpto,
         dist: row.dist,
@@ -77,6 +79,7 @@ export const getParc = async (): Promise<Parc> => {
         AC_VERIFICADO: row.ac_verificado,
         AC_FECHA: row.ac_fecha,
         S25_INM_SUP_TE: row.s25_inm_sup_te,
+        PROPIETARIO: row.propietario,
       },
       geometry: row.geometry
     }));

@@ -36,7 +36,7 @@ async function migrateData() {
 
   try {
     // Load GeoJSON data
-    const geoJsonPath = join(__dirname, '../src/data/map/z1_parc.json');
+    const geoJsonPath = join(__dirname, '../src/data/map/z1_parc_short.json');
     const geoJsonData = JSON.parse(readFileSync(geoJsonPath, 'utf-8'));
     
     console.log(`📊 Found ${geoJsonData.features.length} parcels to migrate\n`);
@@ -56,44 +56,17 @@ async function migrateData() {
         
         // Prepare data for insertion
         const parcelData = {
-          ccatastral: props.ccatastral,
-          objectid: props.objectid,
-          dpto: props.dpto,
-          dist: props.dist,
+          fid: props.fid,
           padron: props.padron,
           zona: props.zona,
           mz: props.mz,
           lote: props.lote,
-          t_mesa: props.t_mesa,
-          exp: props.EXP,
-          gest: props.gest,
+          ccatastral: props.ccatastral,
           mz_agr: props.mz_agr,
           lote_agr: props.lote_agr,
           sup_sig_m2: props.sup_sig_m2,
-          obs: props.obs,
-          nuevo: props.nuevo,
-          id_parcela: props.id_parcela,
-          tipo: props.tipo,
-          tipo_pavim: props.tipo_pavim,
-          nombre_obj: props.nombre_obj,
           sup_legal: props.sup_legal,
-          zona_urban: props.zona_urban,
-          cc_matriz: props.cc_matriz,
-          orig_parc: props.orig_parc,
-          reg_prof: props.reg_prof,
-          finca: props.finca,
-          colonia: props.colonia,
-          matricula: props.matricula,
-          parc_usrin: props.parc_usrin,
-          parc_fchin: props.parc_fchin,
-          parc_usrac: props.parc_usrac,
-          parc_fchac: props.parc_fchac,
-          tmp_shape: props.tmp_shape,
-          ac_tecnico: props.AC_TECNICO,
-          ac_obs: props.AC_OBS,
-          ac_verificado: props.AC_VERIFICADO,
-          ac_fecha: props.AC_FECHA,
-          s25_inm_sup_te: props.S25_INM_SUP_TE,
+          propietario: props.PROPIETARIO,
           geometry: wkt ? `SRID=4326;${wkt}` : null
         };
 

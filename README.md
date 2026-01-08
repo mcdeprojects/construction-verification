@@ -1,108 +1,89 @@
-# 🏙️ City Street Proposal
+#Tablas
 
-Aplicación para recibir propuestas de nombres de calles y almacenarlas en Supabase.  
-Stack: **Vite 7 + React 19 + TypeScript + Tailwind CSS 4 + Supabase JS**
+1. Primera consulta ejecutada:
+```sql
+-- Enable PostGIS extension for geographic data
+CREATE EXTENSION IF NOT EXISTS postgis;
 
-## 🗺️ Instrucciones de preparación de datos
+-- Table for parcels (parcelas)
+CREATE TABLE parcelas (
+    id SERIAL PRIMARY KEY,
+    ccatastral VARCHAR(20) UNIQUE NOT NULL,
+    objectid INTEGER,
+    dpto VARCHAR(10),
+    dist INTEGER,
+    padron INTEGER,
+    zona INTEGER,
+    mz INTEGER,
+    lote INTEGER,
+    t_mesa INTEGER,
+    exp INTEGER,
+    gest INTEGER,
+    mz_agr VARCHAR(10),
+    lote_agr VARCHAR(10),
+    sup_sig_m2 NUMERIC,
+    obs TEXT,
+    nuevo INTEGER,
+    id_parcela INTEGER,
+    tipo INTEGER,
+    tipo_pavim VARCHAR(50),
+    nombre_obj VARCHAR(100),
+    sup_legal NUMERIC,
+    zona_urban INTEGER,
+    cc_matriz VARCHAR(50),
+    orig_parc VARCHAR(50),
+    reg_prof VARCHAR(50),
+    finca VARCHAR(50),
+    colonia VARCHAR(50),
+    matricula VARCHAR(50),
+    parc_usrin VARCHAR(50),
+    parc_fchin TIMESTAMP,
+    parc_usrac VARCHAR(50),
+    parc_fchac TIMESTAMP,
+    tmp_shape TEXT,
+    ac_tecnico VARCHAR(100),
+    ac_obs TEXT,
+    ac_verificado VARCHAR(50),
+    ac_fecha TIMESTAMP,
+    s25_inm_sup_te NUMERIC, -- Surface with construction
+    geometry GEOMETRY(MultiPolygon, 4326),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
 
-1. Exportar las calles desde **QGIS** en formato **GeoJSON**:
-   - Exportar en formato: **Default CRS: EPSG:4326 - WGS 84**
-   - Nombre del archivo: `roads-wgs84.geojson`
-   - Renombrar el archivo a `roads-wgs84.json`
+-- Table for notifications
+CREATE TABLE notificaciones (
+    id SERIAL PRIMARY KEY,
+    ccatastral VARCHAR(20) REFERENCES parcelas(ccatastral) ON DELETE CASCADE,
+    notified_at TIMESTAMP DEFAULT NOW(),
+    notified_by VARCHAR(100),
+    observations TEXT,
+    cuenta_catastral VARCHAR(50),
+    status VARCHAR(20) DEFAULT 'notified', -- notified, pending, verified
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
 
-2. Cargar los datos en el directorio: `src > data`
+-- Indexes for better performance
+CREATE INDEX idx_parcelas_ccatastral ON parcelas(ccatastral);
+CREATE INDEX idx_parcelas_s25_inm_sup_te ON parcelas(s25_inm_sup_te);
+CREATE INDEX idx_parcelas_geometry ON parcelas USING GIST(geometry);
 
+CREATE INDEX idx_notificaciones_ccatastral ON notificaciones(ccatastral);
+CREATE INDEX idx_notificaciones_notified_at ON notificaciones(notified_at);
+CREATE INDEX idx_notificaciones_status ON notificaciones(status);
 
-## 💻 Compatibilidad
+-- Enable Row Level Security (optional, for now we'll disable it for testing)
+ALTER TABLE parcelas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notificaciones ENABLE ROW LEVEL SECURITY;
 
-Este proyecto requiere **Node.js >= 22**.  
-Ha sido desarrollado en **Node 22.17.0**, pero versiones más recientes también deberían funcionar.
-
-
-## ⚙️ Configuración
-
-1) **Crear la tabla para las propuestas de calles (`streets`)**  
-
-   Columnas:
-   - `id` (int8, primary key, autoincremental)
-   - `created_at` (timestamptz, default now())
-   - `street_code` (varchar) – código de la calle
-   - `full_name` (text) – nombre completo de quien propone el nombre
-   - `email` (text) – correo electrónico de quien propone el nombre
-   - `street_name` (text) – nombre propuesto para la calle
-   - `reason` (text) – motivo o justificación de la propuesta
-
-   Script SQL para crear la tabla:
-
-   ```sql
-   create table streets (
-     id bigint generated always as identity primary key,
-     created_at timestamptz default now(),
-     street_code varchar not null,.
-     full_name varchar(50) not null,
-     phone varchar(10) not null,
-     street_name varchar(100) not null,
-     reason varchar(1000) not null,
-     doc_number varchar(10) not null
-   );
-   ```
-
-2) **Política de inserción**
-
-    Crear la política que permita insertar datos en la tabla `streets` utilizando la anon key, y que realice validaciones sobre los datos antes de ser insertados:
-
-    ```sql
-    create policy "street_proposal_policy"
-    on "public"."streets"
-    as PERMISSIVE
-    for INSERT
-    to anon  
-    with check (
-    -- Validaciones
-   (street_code IS NOT NULL) 
-   AND (street_code::text <> '')
-   
-   AND (full_name IS NOT NULL) 
-   AND (LENGTH(TRIM(full_name)) BETWEEN 2 AND 50)
-   AND (TRIM(full_name) ~ '^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$')
-   
-   AND (street_name IS NOT NULL) 
-   AND (LENGTH(TRIM(street_name)) BETWEEN 3 AND 100)
-   
-   AND (reason IS NOT NULL) 
-   AND (LENGTH(TRIM(reason)) BETWEEN 20 AND 1000)
-   
-   AND (phone IS NOT NULL) 
-   AND (phone::text ~ '^09\d{8}$')
-   
-   AND (doc_number IS NOT NULL) 
-   AND (LENGTH(TRIM(doc_number::text)) >= 6)
-   AND (doc_number::text ~ '^[0-9]+$')
-    );
-    ```
-
-3) **Variables de entorno**
-
-   - Clonar el archivo `.env.local.template` y renombrarlo a `.env.local`
-   - Obtener la **URL del proyecto**:
-      - Ir a **Projects** > **Project Settings** > **General**
-      - Copiar el **Project ID**
-      - Reemplazar en el siguiente formato:  
-        `https://xxxxxxxxxx.supabase.co`
-   - Obtener la **anon key**:
-      - Ir a **Projects** > **Project Settings** > **API Keys**
-      - Copiar la **anon public**
-   - Agregar las variables de entorno en el archivo `.env.local`:
-
-      ```env
-      VITE_PUBLIC_SUPABASE_URL=https://xxxxxxxxxx.supabase.co
-      VITE_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-      ```
-
-
-
-## 🚀 Instalación y ejecución de desarrollo
-
-```bash
-npm install && npm run dev
+-- Create policies (allow all for now, refine later)
+CREATE POLICY "Enable read access for all users" ON parcelas FOR SELECT USING (true);
+CREATE POLICY "Enable read access for all users" ON notificaciones FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users" ON notificaciones FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for authenticated users" ON notificaciones FOR UPDATE USING (true);
 ```
+
+2. Se agrego:
+- elimine la mayoria de la columnas en la y cree fid y propietario nulables. solo quedaron las columnas de la imagen.
+![alt text](image.png)
