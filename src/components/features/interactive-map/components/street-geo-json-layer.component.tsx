@@ -2,7 +2,7 @@ import L from "leaflet";
 import React from "react";
 import { useMap } from "react-leaflet";
 import { streetColors, getStreetWidth } from "@/styles";
-import type { GeoJsonData, GeoJsonFeature } from "./types";
+import type {GeoJsonFeature } from "./types";
 import { popupContent } from "./popup-content.component";
 import { useZoomBasedWeight, type ZoomWeightConfig } from "../hook";
 import type { Parc } from "./parc.interface";
@@ -24,7 +24,7 @@ export const StreetGeoJsonLayer: React.FC<Props> = ({
 }) => {
   const map = useMap();
   const layerRef = React.useRef<L.GeoJSON | null>(null);
-  const lastFoundStreetRef = React.useRef<string | undefined>(undefined);
+  //const lastFoundStreetRef = React.useRef<string | undefined>(undefined);
 
   // Obtener el grosor dinámico basado en zoom
   const currentWeight = useZoomBasedWeight(zoomWeightConfig);
@@ -127,28 +127,6 @@ export const StreetGeoJsonLayer: React.FC<Props> = ({
     foundStreetCode,
     currentWeight,
   ]);
-
-  React.useEffect(() => {
-    // Solo centrar si foundStreetCode cambió y es diferente al anterior
-    if (foundStreetCode && foundStreetCode !== lastFoundStreetRef.current) {
-      const foundFeature = data.features.find(
-        (feature) => feature.properties?.CODIGO_CAL === foundStreetCode
-      );
-
-      if (foundFeature && foundFeature.geometry) {
-        const tempLayer = L.geoJSON(foundFeature);
-        const bounds = tempLayer.getBounds();
-
-        map.fitBounds(bounds, {
-          padding: [20, 20],
-          maxZoom: 16,
-        });
-      }
-
-      // Actualizar la referencia
-      lastFoundStreetRef.current = foundStreetCode;
-    }
-  }, [foundStreetCode, data, map]);
 
   return null;
 };

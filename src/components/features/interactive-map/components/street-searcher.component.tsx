@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { streetColors } from '@/styles';
 import type { Parc } from './parc.interface';
 
@@ -7,7 +7,11 @@ interface Props {
     onStreetFound: (codigo: string, nombre: string) => void;
 }
 
-export const StreetSearcher: React.FC<Props> = ({ parcData, onStreetFound }) => {
+export const StreetSearcher: 
+//React.FC<Props> = 
+(
+  //  { parcData, onStreetFound }
+) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const [isOpen, setIsOpen] = React.useState(false);
 
@@ -180,4 +184,4 @@ export const StreetSearcher: React.FC<Props> = ({ parcData, onStreetFound }) => 
             </div>
         </div>
     );
-};
+};*/
