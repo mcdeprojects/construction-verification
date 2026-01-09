@@ -6,7 +6,7 @@ export const Legends: React.FC = () => {
             className="mb-4 p-4 border-2 rounded-lg max-w-xl mx-auto"
             style={{ borderColor: legendsColors.border }}
         >
-            <h3 className="text-sm md:text-base lg:text-lg font-semibold mb-2">Leyenda:</h3>
+            <h3 className="text-sm md:text-base lg:text-lg font-semibold mb-2">Referencias</h3>
             <div className="flex flex-wrap gap-4 text-base">
                 <div className="flex items-center gap-2">
                     <div

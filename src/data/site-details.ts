@@ -1,5 +1,5 @@
 export const siteDetails = {
-    siteName: ""//'Tu Ciudad, Tus Calles',
+    siteName: "Mapa de Notificaciones"//'Tu Ciudad, Tus Calles',
     /*siteUrl: 'https://finwise-omega.vercel.app/',
     metadata: {
         title: 'Finwise - Next.js and Tailwind CSS Landing Page Template',
